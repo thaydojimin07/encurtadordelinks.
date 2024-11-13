@@ -7,60 +7,68 @@ use Core\Database;
 
 class AuthController extends Controller
 {
+    public function register()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === "POST") {
+            $name = trim($_POST['name']);
+            $username = trim($_POST['username']);
+            $email = trim($_POST['email']);
+            $password = $_POST['password'];
 
-  public function register(){
+            // Conectar ao banco de dados
+            $db = Database::connect();
 
-    if($_SERVER['REQUEST_METHOD'] === "POST"){
-      $name = $_POST['name'];
-      $username = $_POST['username'];
-      $email = $_POST['email'];
-      $password = $_POST['password'];
+            // Preparar a instrução para inserção
+            $stm = $db->prepare("INSERT INTO users (name, username, email, password) VALUES (:name, :username, :email, :password)");
 
-      $db = Database::connect();
+            // Hash da senha
+            $hash_password = password_hash($password, PASSWORD_DEFAULT);
 
-      $stm = $db->prepare("INSERT INTO users (name, username, email, password) VALUES (:name, :username, :email, :password)");
-      
-      $hash_password = password_hash($password, PASSWORD_DEFAULT);
+            // Bind dos parâmetros
+            $stm->bindParam(":name", $name);
+            $stm->bindParam(":username", $username);
+            $stm->bindParam(":email", $email);
+            $stm->bindParam(":password", $hash_password);
 
-      $stm->bindParam(":name", $name);
-      $stm->bindParam(":username", $username);
-      $stm->bindParam(":email", $email);
-      
-      $stm->bindParam(":password", $hash_password);
-      
-        if($stm->execute()) {
-          $this->redirect('/login');
+            // Executa a instrução e verifica se foi bem-sucedida
+            if ($stm->execute()) {
+                $this->redirect('/login');
+                  } else {
+                echo "Erro ao registrar o usuário. Por favor, tente novamente.";
+            }
         }
-
+        $this->view('/auth/register');
     }
-    $this->view('/auth/register');
-  }
 
-  public function login()
-  {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $username = $_POST['username'];
-      $password = $_POST['password'];
+    public function login()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = trim($_POST['username']);
+            $password = $_POST['password'];
 
-      $db = Database::connect();
-      $stm = $db->prepare("SELECT * FROM users WHERE username = :username");
+            // Conectar ao banco de dados
+            $db = Database::connect();
+            $stm = $db->prepare("SELECT * FROM users WHERE username = :username");
 
-      $stm->bindParam(":username", $username);
-      $stm->execute();
+            // Bind do parâmetro
+            $stm->bindParam(":username", $username);
+            $stm->execute();
 
-      $user = $stm->fetch();
-      session_start();
+            // Buscar o usuário
+            $user = $stm->fetch();
+            session_start();
 
-      if($user && password_verify($password, $user['password'])){
+            // Verificar se o usuário existe e a senha está correta
+            if ($user && password_verify($password, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['name'] = $user['name'];
+                $_SESSION['username'] = $user['username'];
 
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['name'] = $user['name'];
-        $_SESSION['username'] = $user['username'];
-
-        $this->redirect('/dash');
-
-      }
+                $this->redirect('/dash');
+            } else {
+                echo "Usuário ou senha incorretos. Por favor, tente novamente.";
+            }
+        }
+        $this->view('auth/login');
     }
-    $this->view('auth/login');
-  }
 }

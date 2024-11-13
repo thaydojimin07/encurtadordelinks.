@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css"> <!-- Link para o seu arquivo CSS -->
+    <title>Encurtador de Links</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Encurtador de Links</h1>
+        <form id="shortener-form">
+            <input type="text" id="url-input" placeholder="Cole sua URL aqui" required>
+            <button type="submit">Encurtar</button>
+        </form>
+        <div class="result" id="result-container" style="display: none;">
+            <span>Link encurtado:</span>
+            <a href="#" id="shortened-link" class="shortened-link"></a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('shortener-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita o envio do formulário
+            const urlInput = document.getElementById('url-input').value;
+            const shortenedLink = `https://short.ly/${btoa(urlInput).substring(0, 8)}`; // Simulação de encurtamento
+            document.getElementById('shortened-link').textContent = shortenedLink;
+            document.getElementById('shortened-link').href = shortenedLink;
+            document.getElementById('result-container').style.display = 'block'; // Mostra o link encurtado
+        });
+    </script>
+</body>
+</html>
