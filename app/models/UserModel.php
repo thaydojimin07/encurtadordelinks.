@@ -1,55 +1,30 @@
-<?php
+namespace App\models;
 
-class UserModel extends Model
+use PDO;
+
+class UserModel
 {
     private $db;
 
     public function __construct()
     {
-        $this->db = (new Database())->getConnection();
+        $this->db = new \Core\Database();
     }
 
-    public function getAllUsers()
+    public function saveUrl($url, $shortCode)
     {
-        $sql = "SELECT * FROM users";
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getUserById($id)
-    {
-        $sql = "SELECT * FROM users WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt = $this->db->getConnection()->prepare("INSERT INTO urls (url, short_code) VALUES (:url, :short_code)");
+        $stmt->bindParam(':url', $url);
+        $stmt->bindParam(':short_code', $shortCode);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function createUser($name, $email)
+    public function getUrlByShortCode($shortCode)
     {
-        $sql = "INSERT INTO users (name, email) VALUES (:name, :email)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':email', $email);
-        return $stmt->execute();
-    }
-
-    public function updateUser($id, $name, $email)
-    {
-        $sql = "UPDATE users SET name = :name, email = :email WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':email', $email);
-        return $stmt->execute();
-    }
-
-    public function deleteUser($id)
-    {
-        $sql = "DELETE FROM users WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        $stmt = $this->db->getConnection()->prepare("SELECT url FROM urls WHERE short_code = :short_code");
+        $stmt->bindParam(':short_code', $shortCode);
+        $stmt->execute();
+        return $stmt->fetchColumn();
     }
 }
 

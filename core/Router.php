@@ -13,19 +13,14 @@ class Router
                 $controllerName = 'App\controllers\HomeController';
                 $actionName = 'index';
                 break;
-            case '/register':
-                $controllerName = 'App\controllers\AuthController';
-                $actionName = 'register';
+            case '/shorten':
+                $controllerName = 'App\controllers\HomeController';
+                $actionName = 'shorten';
                 break;
-            case '/login':
-                $controllerName = 'App\controllers\AuthController';
-                $actionName = 'login';
-                break;
-             //Adicionar novas rotas aqui....
-            default:
-                http_response_code(404);
-                echo "Página não encontrada!";
-                exit;
+            case '/r':
+                $controllerName = 'App\controllers\HomeController';
+                $actionName = 'redirectTo';
+                break;            
         }
 
         if (class_exists($controllerName)) {

@@ -1,0 +1,8 @@
+CREATE DATABASE encurtador;
+USE encurtador;
+
+CREATE TABLE urls (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url TEXT NOT NULL,
+    short_code VARCHAR(10) NOT NULL UNIQUE
+);
